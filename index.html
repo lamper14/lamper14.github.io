@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Polisen.se Events Search</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+	<h1>Polisen.se</h1>
+	
+	<!-- Search form -->
+	<form>
+		<label for="location-input">Location:</label>
+		<input type="text" id="location-input" name="location" placeholder="Enter location">
+		<button type="submit" id="search-button">Search</button>
+		<button type="button" id="clear-button">Clear</button>
+	</form>
+	
+	<!-- Results container -->
+	<div id="results-container"></div>
+	
+	<!-- JavaScript code -->
+	<script>
+		// Get references to the search form, clear button, and results container
+		const searchForm = document.querySelector('form');
+		const clearButton = document.querySelector('#clear-button');
+		const resultsContainer = document.querySelector('#results-container');
+
+		// Event listener for search form submission
+		searchForm.addEventListener('submit', (event) => {
+			// Prevent the default form submission behavior
+			event.preventDefault();
+
+			// Get the user's search location from the input field
+			const location = searchForm.location.value;
+
+			// Send a GET request to the Polisen.se API endpoint
+			fetch(`https://polisen.se/api/events?locationname=${location}`)
+				.then(response => response.json())
+				.then(data => {
+					// Clear any previous search results from the container
+					resultsContainer.innerHTML = '';
+
+					// Loop through the returned events and display them in the results container
+					data.forEach(event => {
+						const eventDiv = document.createElement('div');
+						eventDiv.innerHTML = `
+							<h2>${event.name}</h2>
+							<p><strong>Location:</strong> ${event.location.name}</p>
+							<p><strong>Date:</strong> ${event.datetime}</p>
+							<p><strong>Description:</strong> ${event.summary}</p>
+						`;
+						resultsContainer.appendChild(eventDiv);
+					});
+				})
+				.catch(error => console.error(error));
+		});
+
+		// Event listener for clear button click
+		clearButton.addEventListener('click', () => {
+			// Clear the search input field and results container
+			searchForm.reset();
+			resultsContainer.innerHTML = '';
+		});
+	</script>
+</body>
+</html>
